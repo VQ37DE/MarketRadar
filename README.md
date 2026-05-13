@@ -15,6 +15,36 @@ MarketRadar is a real-time listing aggregator and deal-scoring system that conti
 Rather than manually refreshing searches, MarketRadar runs asynchronous scrapers on a configurable polling interval, normalizes listing data across platforms into a unified schema, and applies a scoring algorithm to rank deals by value — factoring in asking price vs. estimated market value, listing age, seller history, and keyword relevance.
 
 ---
+## 🚀 Getting Started
+
+### Prerequisites
+
+- Python 3.10+
+- Chrome + ChromeDriver (for Selenium-based scraping)
+
+### Installation
+
+```bash
+# Clone the repo
+git clone https://github.com/yourusername/marketradar.git
+cd marketradar
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Configure your watchlists
+cp config.example.yaml config.yaml
+# Edit config.yaml with your targets and alert preferences
+```
+
+### Run
+
+```bash
+python main.py
+```
+
+---
+
 
 ## ✨ Key Features
 
@@ -90,36 +120,6 @@ alerts:
 scraper:
   poll_interval_seconds: 120
   min_deal_score: 70
-```
-
----
-
-## 🚀 Getting Started
-
-### Prerequisites
-
-- Python 3.10+
-- Chrome + ChromeDriver (for Selenium-based scraping)
-
-### Installation
-
-```bash
-# Clone the repo
-git clone https://github.com/yourusername/marketradar.git
-cd marketradar
-
-# Install dependencies
-pip install -r requirements.txt
-
-# Configure your watchlists
-cp config.example.yaml config.yaml
-# Edit config.yaml with your targets and alert preferences
-```
-
-### Run
-
-```bash
-python main.py
 ```
 
 ---
