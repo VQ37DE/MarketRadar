@@ -9,7 +9,7 @@ export default function RelistBadge({ listing }) {
   return (
     <div className="flex flex-wrap gap-1.5">
       {badges.map(({ icon: Icon, label }) => (
-        <span key={label} className="inline-flex items-center gap-1 rounded-md bg-zinc-900 px-2 py-1 text-[11px] font-medium text-zinc-300 ring-1 ring-zinc-800"><Icon size={12} />{label}</span>
+        <span key={label} className="inline-flex min-h-7 items-center gap-1 rounded-md border px-2 py-1 text-[11px] font-medium surface-soft text-secondary"><Icon size={12} />{label}</span>
       ))}
     </div>
   );

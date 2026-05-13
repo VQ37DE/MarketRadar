@@ -7,9 +7,9 @@ export default function App() {
   const [route, setRoute] = useState(window.location.pathname);
   const [theme, setTheme] = useState('dark');
   const page = useMemo(() => {
-    if (route === '/settings') return <Settings theme={theme} setTheme={setTheme} />;
-    if (route === '/watchlists') return <Watchlists />;
+    if (route === '/settings') return <Settings setRoute={setRoute} theme={theme} setTheme={setTheme} />;
+    if (route === '/watchlists') return <Watchlists setRoute={setRoute} />;
     return <Dashboard setRoute={setRoute} theme={theme} setTheme={setTheme} />;
   }, [route, theme]);
-  return <div className={theme === 'dark' ? 'dark' : ''}>{page}</div>;
+  return <div className={theme === 'dark' ? 'dark min-h-screen' : 'light min-h-screen'}>{page}</div>;
 }
