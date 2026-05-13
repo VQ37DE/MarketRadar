@@ -1,0 +1,36 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root { color-scheme: dark; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: #0d0d0d;
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+}
+
+.light body, .light .app-shell {
+  background: #f5f7fb;
+  color: #18181b;
+}
+
+.score-glow {
+  box-shadow: 0 0 0 1px rgba(54, 211, 153, 0.4), 0 18px 55px rgba(54, 211, 153, 0.08);
+}
+
+.thin-scrollbar::-webkit-scrollbar { width: 8px; }
+.thin-scrollbar::-webkit-scrollbar-thumb { background: #3f3f46; border-radius: 999px; }
+
+@layer components {
+  .control {
+    @apply rounded-md border border-zinc-800 bg-zinc-950 px-3 py-2 text-sm text-zinc-100 outline-none transition placeholder:text-zinc-600 focus:border-zinc-500;
+  }
+  .icon-button {
+    @apply inline-flex h-10 w-10 items-center justify-center rounded-md border border-zinc-800 bg-radar-panel text-zinc-300 transition hover:bg-zinc-900 hover:text-white;
+  }
+  .field {
+    @apply block text-sm font-semibold text-zinc-300;
+  }
+}

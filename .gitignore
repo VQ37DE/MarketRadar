@@ -1,0 +1,10 @@
+.env
+cookies.json
+*.db
+__pycache__/
+*.pyc
+.venv/
+node_modules/
+dist/
+.pytest_cache/
+playwright-report/

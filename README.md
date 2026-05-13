@@ -1,157 +1,112 @@
-# 🔍 MarketRadar
+# MarketRadar
 
-> An intelligent, automated deal discovery engine for Facebook Marketplace and Craigslist — built to surface high-value listings the moment they go live.
+MarketRadar is a real-time deal aggregator and scoring engine for Facebook Marketplace and Craigslist. It normalizes listings into one fast dashboard, scores deal quality, and tracks relists, price drops, and stale inventory so buyers can negotiate with context.
 
-![Python](https://img.shields.io/badge/Python-3.10+-blue?style=flat-square&logo=python)
-![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)
-![Status](https://img.shields.io/badge/Status-In%20Development-orange?style=flat-square)
+## Stack
 
----
+- Backend: FastAPI, SQLAlchemy, SQLite, APScheduler, Playwright, BeautifulSoup
+- Frontend: React, Vite, TailwindCSS
+- Config: YAML watchlists and alert settings
+- Notifications: SMTP email and webhook delivery
+- Packaging: Docker and docker-compose
 
-## 📖 About
-
-MarketRadar is a real-time listing aggregator and deal-scoring system that continuously monitors **Facebook Marketplace** and **Craigslist** for newly posted items matching user-defined criteria.
-
-Rather than manually refreshing searches, MarketRadar runs asynchronous scrapers on a configurable polling interval, normalizes listing data across platforms into a unified schema, and applies a scoring algorithm to rank deals by value — factoring in asking price vs. estimated market value, listing age, seller history, and keyword relevance.
-
----
-## 🚀 Getting Started
-
-### Prerequisites
-
-- Python 3.10+
-- Chrome + ChromeDriver (for Selenium-based scraping)
-
-### Installation
+## Quick Start
 
 ```bash
-# Clone the repo
-git clone https://github.com/yourusername/marketradar.git
-cd marketradar
-
-# Install dependencies
-pip install -r requirements.txt
-
-# Configure your watchlists
-cp config.example.yaml config.yaml
-# Edit config.yaml with your targets and alert preferences
+cp .env.example .env
+docker compose up --build
 ```
 
-### Run
+Open the frontend at `http://localhost:5173` and the API at `http://localhost:8000/api/v1`.
+
+For local development without Docker:
 
 ```bash
-python main.py
+python -m venv .venv
+.\.venv\Scripts\activate
+pip install -r backend/requirements.txt
+uvicorn backend.main:app --reload
+
+cd frontend
+npm install
+npm run dev
 ```
 
----
+## Facebook Marketplace Setup
 
+Facebook Marketplace requires an authenticated browser session. Export your own session cookies to `cookies.json` at the repository root. MarketRadar never stores your Facebook password. Keep `cookies.json` private and do not commit it.
 
-## ✨ Key Features
+The Facebook scraper is intentionally conservative: it loads Marketplace searches with Playwright using your cookies and extracts visible listing data. Site markup changes often, so selectors may need occasional adjustment.
 
-- **Multi-Platform Scraping** — Simultaneous coverage of Facebook Marketplace and Craigslist with platform-specific parsers
-- **Real-Time Alerting** — Push notifications or email/webhook alerts the moment a high-score listing is detected
-- **Deal Scoring Engine** — Heuristic + ML-assisted ranking based on price deviation, condition, and market comparables
-- **Configurable Watchlists** — Define search queries, location radius, price floors/ceilings, and keyword filters per target
-- **Deduplication** — Cross-platform fingerprinting to avoid surfacing the same item twice
-- **Historical Tracking** — Stores listing lifecycles to analyze price drops, relisting patterns, and market trends
+## Configuration
 
----
-
-## 🎯 Use Cases
-
-- Flipping goods for profit
-- Tracking specific items (electronics, furniture, vehicles) at a target price
-- Competitive market research and price trend analysis
-
----
-
-## 🏗️ Project Structure
-
-```
-marketradar/
-├── scrapers/
-│   ├── facebook.py        # Facebook Marketplace scraper
-│   └── craigslist.py      # Craigslist scraper
-├── core/
-│   ├── scorer.py          # Deal scoring engine
-│   ├── deduplicator.py    # Cross-platform deduplication
-│   └── normalizer.py      # Unified listing schema
-├── alerts/
-│   ├── email.py           # Email notification handler
-│   └── webhook.py         # Webhook / push notification handler
-├── storage/
-│   └── db.py              # Listing storage and history tracking
-├── config.yaml            # User-defined watchlists and settings
-├── main.py                # Entry point
-└── requirements.txt
-```
-
----
-
-## ⚙️ Configuration
-
-Edit `config.yaml` to define your watchlists:
+Edit `config.yaml` to define watchlists, polling, scoring thresholds, and alert destinations. Secrets belong in `.env`.
 
 ```yaml
 watchlists:
-  - name: "Gaming Monitors"
+  - id: "gaming-monitors"
+    name: "Gaming Monitors"
+    enabled: true
     keywords: ["monitor", "1440p", "144hz"]
     platforms: ["facebook", "craigslist"]
-    location: "Houston, TX"
-    radius_miles: 30
+    location: "Austin, TX"
+    radius_miles: 35
     price_min: 50
     price_max: 400
-    alert: email
-
-  - name: "Vintage Cameras"
-    keywords: ["film camera", "35mm", "canon ae-1"]
-    platforms: ["craigslist"]
-    location: "Houston, TX"
-    radius_miles: 50
-    price_max: 200
-    alert: webhook
-
-alerts:
-  email:
-    to: "you@example.com"
-  webhook:
-    url: "https://hooks.slack.com/your-webhook-url"
-
-scraper:
-  poll_interval_seconds: 120
-  min_deal_score: 70
+    condition: ["like_new", "good"]
+    alert_type: "email"
 ```
 
----
+## Scraper Dry Run
 
-## 🧠 How the Deal Scorer Works
+Run scrapers without writing to the database:
 
-Each listing is assigned a score from **0–100** based on:
+```bash
+python -m backend.main --dry-run --watchlist gaming-monitors
+```
 
-| Factor | Weight |
-|---|---|
-| Price vs. estimated market value | 40% |
-| Listing freshness (age) | 20% |
-| Keyword match quality | 20% |
-| Item condition | 10% |
-| Seller reputation signals | 10% |
+## API
 
-Only listings above the configured `min_deal_score` threshold trigger an alert.
+All application endpoints live under `/api/v1/`.
 
----
+- `GET /api/v1/listings`
+- `GET /api/v1/listings/{listing_id}`
+- `GET /api/v1/watchlists`
+- `POST /api/v1/watchlists`
+- `PATCH /api/v1/watchlists/{watchlist_id}`
+- `DELETE /api/v1/watchlists/{watchlist_id}`
+- `GET /api/v1/settings`
+- `PATCH /api/v1/settings`
+- `WS /api/v1/ws/listings`
 
-## ⚠️ Disclaimer
+## Relist Radar
 
-This tool is intended for personal and educational use only. Scraping Facebook Marketplace may violate their [Terms of Service](https://www.facebook.com/terms.php). Use responsibly and at your own risk.
+MarketRadar stores every observed version of a listing. New listings are checked against existing records using title similarity and optional perceptual image hashes. Cards surface:
 
----
+- Relist count
+- Price drops and percentage change
+- Days sitting unsold
+- Version history in the detail panel
 
-## 🤝 Contributing
+## Project Layout
 
-Pull requests are welcome! For major changes, please open an issue first to discuss what you'd like to change.
+```text
+backend/
+  main.py
+  scraper/
+  core/
+  db/
+  alerts/
+  scheduler.py
+frontend/
+  src/
+seeds/
+  mock_listings.json
+config.yaml
+docker-compose.yml
+Dockerfile
+```
 
----
+## Disclaimer
 
-## 📄 License
-
-[MIT](LICENSE)
+Scraping Facebook Marketplace may violate Facebook's Terms of Service. Use this project responsibly and at your own risk.

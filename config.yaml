@@ -1,0 +1,36 @@
+watchlists:
+  - id: "gaming-monitors"
+    name: "Gaming Monitors"
+    enabled: true
+    keywords: ["monitor", "1440p", "144hz"]
+    platforms: ["facebook", "craigslist"]
+    location: "Austin, TX"
+    radius_miles: 35
+    price_min: 50
+    price_max: 400
+    condition: ["like_new", "good"]
+    alert_type: "email"
+  - id: "gravel-bikes"
+    name: "Gravel Bikes"
+    enabled: true
+    keywords: ["gravel bike", "diverge", "checkpoint", "topstone"]
+    platforms: ["craigslist"]
+    location: "Austin, TX"
+    radius_miles: 50
+    price_min: 250
+    price_max: 1600
+    condition: ["good", "fair"]
+    alert_type: "webhook"
+
+alerts:
+  email:
+    to: "you@example.com"
+  webhook:
+    url: "${WEBHOOK_URL}"
+
+scraper:
+  poll_interval_seconds: 300
+  min_deal_score: 70
+
+ui:
+  theme: "dark"

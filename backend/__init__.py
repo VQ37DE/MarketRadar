@@ -1,0 +1,1 @@
+"""MarketRadar backend package."""
