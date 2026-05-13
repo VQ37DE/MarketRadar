@@ -1,8 +1,14 @@
 import { SlidersHorizontal } from 'lucide-react';
 
-export default function FilterBar({ filters, setFilters }) {
+export default function FilterBar({ categories = [], filters, setFilters }) {
   const controls = (
     <>
+      <select aria-label="Category filter" value={filters.category} onChange={(event) => setFilters({ ...filters, category: event.target.value })} className="control">
+        <option value="all">All categories</option>
+        {categories.map((category) => (
+          <option key={category.id} value={category.id}>{category.name}</option>
+        ))}
+      </select>
       <select aria-label="Platform filter" value={filters.platform} onChange={(event) => setFilters({ ...filters, platform: event.target.value })} className="control">
         <option value="both">Both platforms</option>
         <option value="facebook">Facebook</option>
@@ -35,7 +41,7 @@ export default function FilterBar({ filters, setFilters }) {
       <details className="md:hidden">
         <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between rounded-md border px-3 text-sm font-semibold text-primary" style={{ borderColor: 'var(--line)', background: 'var(--panel)' }}>
           <span className="flex items-center gap-2"><SlidersHorizontal size={16} />Filters</span>
-          <span className="text-xs text-secondary">{filters.minScore}+ score</span>
+          <span className="text-xs text-secondary">{filters.category === 'all' ? `${filters.minScore}+ score` : categories.find((category) => category.id === filters.category)?.name}</span>
         </summary>
         <div className="mt-3 grid gap-3">{controls}</div>
       </details>

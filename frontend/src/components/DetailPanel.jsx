@@ -1,6 +1,8 @@
 import { ExternalLink, X } from 'lucide-react';
 import DealScoreBadge from './DealScoreBadge.jsx';
 import RelistBadge from './RelistBadge.jsx';
+import { fallbackListingImageUrl, listingImageUrl } from '../utils/listingImages.js';
+import { isGeneratedAdUrl, listingAdUrl } from '../utils/listingLinks.js';
 
 export default function DetailPanel({ listing, onClose }) {
   if (!listing) return null;
@@ -12,11 +14,23 @@ export default function DetailPanel({ listing, onClose }) {
           <div className="min-w-0 pr-3"><div className="text-xs font-semibold uppercase tracking-widest text-tertiary">Listing detail</div><h2 className="mt-1 text-xl font-bold text-primary">{listing.title}</h2></div>
           <button className="icon-button" onClick={onClose} title="Close"><X size={16} /></button>
         </div>
-        <img src={listing.images?.[0]} alt="" className="aspect-video w-full rounded-lg object-cover ring-1" style={{ '--tw-ring-color': 'var(--line)' }} />
+        <img
+          src={listingImageUrl(listing)}
+          alt={listing.title}
+          className="aspect-video w-full rounded-lg object-cover ring-1"
+          style={{ '--tw-ring-color': 'var(--line)' }}
+          onError={(event) => {
+            const fallback = fallbackListingImageUrl(listing);
+            if (event.currentTarget.src !== fallback) event.currentTarget.src = fallback;
+          }}
+        />
         <div className="mt-4 flex items-center justify-between"><div className="text-3xl font-bold text-primary">${Number(listing.price).toLocaleString()}</div><DealScoreBadge score={listing.deal_score} /></div>
         <div className="mt-4"><RelistBadge listing={listing} /></div>
         <p className="mt-5 text-sm leading-6 text-secondary">{listing.description || 'No description captured yet.'}</p>
-        <a href={listing.url} className="primary-button mt-5 w-full">Contact Seller <ExternalLink size={16} /></a>
+        <a href={listingAdUrl(listing)} target="_blank" rel="noreferrer" className="primary-button mt-5 w-full">View Ad / Contact Seller <ExternalLink size={16} /></a>
+        <div className="mt-2 truncate text-center text-xs text-tertiary">
+          {isGeneratedAdUrl(listing) ? 'Demo item: opens a matching platform search' : 'Opens the original listing ad'}
+        </div>
         <div className="mt-6">
           <h3 className="text-sm font-bold text-primary">Price History</h3>
           <div className="mt-3 space-y-2">

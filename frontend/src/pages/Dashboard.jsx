@@ -5,27 +5,33 @@ import FilterBar from '../components/FilterBar.jsx';
 import ListingCard from '../components/ListingCard.jsx';
 import Sidebar from '../components/Sidebar.jsx';
 import seedListings from '../../../seeds/mock_listings.json';
+import seedCategories from '../../../seeds/search_categories.json';
 
 const API = '/api/v1';
 
 export default function Dashboard({ setRoute, theme, setTheme }) {
   const [listings, setListings] = useState(seedListings);
+  const [categories, setCategories] = useState(seedCategories);
   const [watchlists, setWatchlists] = useState([]);
   const [selected, setSelected] = useState(null);
   const [view, setView] = useState('grid');
   const [sort, setSort] = useState('score');
   const [query, setQuery] = useState('');
-  const [filters, setFilters] = useState({ platform: 'both', minScore: 0, minPrice: '', maxPrice: '', condition: '', onlyNew: false });
+  const [filters, setFilters] = useState({ category: 'all', platform: 'both', minScore: 0, minPrice: '', maxPrice: '', condition: '', onlyNew: false });
 
   useEffect(() => {
     const load = async () => {
       try {
-        const [listingRes, watchlistRes] = await Promise.all([fetch(`${API}/listings`), fetch(`${API}/watchlists`)]);
+        const [listingRes, watchlistRes, categoryRes] = await Promise.all([fetch(`${API}/listings`), fetch(`${API}/watchlists`), fetch(`${API}/categories`)]);
         if (listingRes.ok) {
           const data = await listingRes.json();
           if (data.length) setListings(data);
         }
         if (watchlistRes.ok) setWatchlists(await watchlistRes.json());
+        if (categoryRes.ok) {
+          const data = await categoryRes.json();
+          if (data.length) setCategories(data);
+        }
       } catch {
         setWatchlists([{ id: 'gaming-monitors', name: 'Gaming Monitors', enabled: true, keywords: ['monitor', '1440p'], result_count: 8 }, { id: 'gravel-bikes', name: 'Gravel Bikes', enabled: true, keywords: ['gravel bike', 'diverge'], result_count: 4 }]);
       }
@@ -39,6 +45,7 @@ export default function Dashboard({ setRoute, theme, setTheme }) {
     const now = Date.now();
     return listings
       .filter((listing) => filters.platform === 'both' || listing.platform === filters.platform)
+      .filter((listing) => filters.category === 'all' || listing.category_id === filters.category)
       .filter((listing) => listing.deal_score >= filters.minScore)
       .filter((listing) => !filters.minPrice || listing.price >= Number(filters.minPrice))
       .filter((listing) => !filters.maxPrice || listing.price <= Number(filters.maxPrice))
@@ -67,9 +74,9 @@ export default function Dashboard({ setRoute, theme, setTheme }) {
         <button onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')} className="icon-button hidden sm:inline-flex" title="Toggle theme">{theme === 'dark' ? <Moon size={17} /> : <Sun size={17} />}</button>
         <button onClick={() => setRoute('/settings')} className="icon-button" title="Settings"><Settings size={17} /></button>
       </nav>
-      <FilterBar filters={filters} setFilters={setFilters} />
+      <FilterBar categories={categories} filters={filters} setFilters={setFilters} />
       <div className="flex">
-        <Sidebar watchlists={watchlists} onManage={() => setRoute('/watchlists')} />
+        <Sidebar categories={categories} watchlists={watchlists} onCategorySelect={(category) => setFilters({ ...filters, category: category.id })} onManage={() => setRoute('/watchlists')} />
         <section className="min-w-0 flex-1 p-4 lg:p-6">
           <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>

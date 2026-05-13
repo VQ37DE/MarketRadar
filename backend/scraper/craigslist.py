@@ -14,10 +14,24 @@ def _price_to_float(text: str | None) -> float:
     return float(cleaned or 0)
 
 
+def _image_urls(result) -> list[str]:
+    images: list[str] = []
+    for image in result.select("img"):
+        src = image.get("src") or image.get("data-src")
+        if not src and image.get("srcset"):
+            src = image["srcset"].split(",")[0].strip().split(" ")[0]
+        if src and src.startswith("//"):
+            src = f"https:{src}"
+        if src and src not in images:
+            images.append(src)
+    return images
+
+
 def build_search_url(watchlist: dict) -> str:
     query = quote_plus(" ".join(watchlist.get("keywords") or []))
     location = (watchlist.get("location") or "austin").split(",")[0].lower().replace(" ", "")
-    url = f"https://{location}.craigslist.org/search/sss?query={query}&sort=date"
+    category = watchlist.get("craigslist_category") or "sss"
+    url = f"https://{location}.craigslist.org/search/{category}?query={query}&sort=date"
     if watchlist.get("price_min") is not None:
         url += f"&min_price={int(watchlist['price_min'])}"
     if watchlist.get("price_max") is not None:
@@ -45,10 +59,12 @@ def scrape_craigslist(watchlist: dict, timeout: int = 20) -> list[NormalizedList
             "title": title,
             "price": _price_to_float(price_el.get_text(strip=True) if price_el else None),
             "location": watchlist.get("location"),
+            "category_id": watchlist.get("category_id"),
+            "category_name": watchlist.get("category_name"),
             "url": url,
             "posted_at": posted_at,
             "scraped_at": datetime.now(timezone.utc),
-            "images": [],
+            "images": _image_urls(result),
         }
         listings.append(normalize_listing(payload, "craigslist", watchlist.get("id")))
     return listings

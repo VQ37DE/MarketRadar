@@ -1,6 +1,6 @@
 import { Plus, Power, SlidersHorizontal } from 'lucide-react';
 
-export default function Sidebar({ watchlists, onManage }) {
+export default function Sidebar({ categories = [], watchlists, onCategorySelect, onManage }) {
   return (
     <aside className="hidden w-72 shrink-0 border-r p-4 lg:block" style={{ background: 'var(--panel)', borderColor: 'var(--line)' }}>
       <div className="mb-4 flex items-center justify-between">
@@ -24,6 +24,17 @@ export default function Sidebar({ watchlists, onManage }) {
         ))}
       </div>
       <button onClick={onManage} className="ghost-button mt-4 w-full"><SlidersHorizontal size={15} />Manage</button>
+      <div className="mt-6 border-t pt-4" style={{ borderColor: 'var(--line)' }}>
+        <div className="mb-3 text-xs font-bold uppercase tracking-wider text-tertiary">Search Categories</div>
+        <div className="grid gap-1.5">
+          {categories.slice(0, 12).map((category) => (
+            <button key={category.id} onClick={() => onCategorySelect?.(category)} className="category-row">
+              <span className="truncate">{category.name}</span>
+              <span className="text-[11px] uppercase text-tertiary">{category.craigslist_category}</span>
+            </button>
+          ))}
+        </div>
+      </div>
     </aside>
   );
 }

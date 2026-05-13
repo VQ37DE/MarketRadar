@@ -1,6 +1,8 @@
 import { ExternalLink, MapPin } from 'lucide-react';
 import DealScoreBadge from './DealScoreBadge.jsx';
 import RelistBadge from './RelistBadge.jsx';
+import { fallbackListingImageUrl, listingImageUrl } from '../utils/listingImages.js';
+import { listingAdUrl } from '../utils/listingLinks.js';
 
 const platformLabel = { facebook: 'FB', craigslist: 'CL' };
 
@@ -19,7 +21,15 @@ export default function ListingCard({ listing, onSelect, index, view = 'grid' })
       style={{ animationDelay: `${Math.min(index * 28, 240)}ms` }}
     >
       <div className={`${isList ? 'aspect-[4/3] sm:aspect-auto' : 'aspect-[16/10]'} overflow-hidden bg-zinc-900`}>
-        <img src={listing.images?.[0]} alt="" className="h-full w-full object-cover transition duration-300 hover:scale-[1.03]" />
+        <img
+          src={listingImageUrl(listing)}
+          alt=""
+          className="h-full w-full object-cover transition duration-300 hover:scale-[1.03]"
+          onError={(event) => {
+            const fallback = fallbackListingImageUrl(listing);
+            if (event.currentTarget.src !== fallback) event.currentTarget.src = fallback;
+          }}
+        />
       </div>
       <div className="space-y-3 p-4">
         <div className="flex items-start justify-between gap-3">
@@ -36,8 +46,8 @@ export default function ListingCard({ listing, onSelect, index, view = 'grid' })
         <RelistBadge listing={listing} />
         <div className="flex items-center justify-between border-t pt-3 text-xs text-tertiary" style={{ borderColor: 'var(--line)' }}>
           <span>{Number.isNaN(postedDate.getTime()) ? 'Recently seen' : postedDate.toLocaleString()}</span>
-          <a onClick={(event) => event.stopPropagation()} href={listing.url} className="link-action">
-            Open <ExternalLink size={12} />
+          <a onClick={(event) => event.stopPropagation()} href={listingAdUrl(listing)} target="_blank" rel="noreferrer" className="link-action">
+            View ad <ExternalLink size={12} />
           </a>
         </div>
       </div>

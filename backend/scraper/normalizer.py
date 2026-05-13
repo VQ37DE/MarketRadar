@@ -14,6 +14,8 @@ class NormalizedListing(BaseModel):
     price: float = 0
     location: str | None = None
     platform: Platform
+    category_id: str | None = None
+    category_name: str | None = None
     condition: str | None = None
     description: str = ""
     images: list[str] = Field(default_factory=list)
@@ -40,6 +42,8 @@ def normalize_listing(payload: dict[str, Any], platform: Platform, watchlist_id:
         price=float(payload.get("price") or 0),
         location=payload.get("location"),
         platform=platform,
+        category_id=payload.get("category_id"),
+        category_name=payload.get("category_name"),
         condition=payload.get("condition"),
         description=payload.get("description") or "",
         images=list(payload.get("images") or []),

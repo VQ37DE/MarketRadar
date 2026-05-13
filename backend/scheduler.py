@@ -32,6 +32,8 @@ def persist_listing(db: Session, listing, keywords: list[str]) -> Listing:
         price=listing.price,
         location=listing.location,
         platform=listing.platform,
+        category_id=listing.category_id,
+        category_name=listing.category_name,
         condition=listing.condition,
         description=listing.description,
         images=listing.images,
@@ -57,6 +59,10 @@ async def scrape_watchlist(db: Session, watchlist: Watchlist, dry_run: bool = Fa
         "location": watchlist.location,
         "price_min": watchlist.price_min,
         "price_max": watchlist.price_max,
+        "category_id": watchlist.category_id,
+        "category_name": watchlist.category_name,
+        "craigslist_category": watchlist.craigslist_category,
+        "facebook_category": watchlist.facebook_category,
     }
     scraped = []
     if "craigslist" in watchlist.platforms:

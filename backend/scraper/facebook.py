@@ -37,14 +37,20 @@ async def scrape_facebook(watchlist: dict, cookies_path: str | None = None) -> l
             title = text[-1] if text else "Facebook Marketplace listing"
             price_line = next((line for line in text if line.strip().startswith("$")), "0")
             price = float("".join(ch for ch in price_line if ch.isdigit() or ch == ".") or 0)
+            image_src = None
+            image = card.locator("img").first
+            if await image.count():
+                image_src = await image.get_attribute("src")
             payload = {
                 "title": title,
                 "price": price,
                 "location": watchlist.get("location"),
+                "category_id": watchlist.get("category_id"),
+                "category_name": watchlist.get("category_name"),
                 "url": href if href.startswith("http") else f"https://www.facebook.com{href}",
                 "posted_at": None,
                 "scraped_at": datetime.now(timezone.utc),
-                "images": [],
+                "images": [image_src] if image_src else [],
             }
             listings.append(normalize_listing(payload, "facebook", watchlist.get("id")))
         await browser.close()

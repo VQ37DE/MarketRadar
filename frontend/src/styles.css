@@ -124,4 +124,11 @@ body {
   .subtle-icon-button:hover {
     color: var(--text);
   }
+  .category-row {
+    color: var(--text-muted);
+    @apply flex min-h-9 items-center justify-between rounded-md px-2 text-left text-sm transition hover:bg-zinc-500/10 focus:outline-none focus:ring-2 focus:ring-radar-green/25;
+  }
+  .category-row:hover {
+    color: var(--text);
+  }
 }

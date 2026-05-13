@@ -40,6 +40,10 @@ class WatchlistPayload(BaseModel):
     radius_miles: int | None = None
     price_min: float | None = None
     price_max: float | None = None
+    category_id: str | None = None
+    category_name: str | None = None
+    craigslist_category: str | None = None
+    facebook_category: str | None = None
     condition: list[str] = []
     alert_type: str | None = None
 
@@ -78,6 +82,10 @@ def sync_watchlists_from_config() -> None:
                 "radius_miles": item.get("radius_miles"),
                 "price_min": item.get("price_min"),
                 "price_max": item.get("price_max"),
+                "category_id": item.get("category_id"),
+                "category_name": item.get("category_name"),
+                "craigslist_category": item.get("craigslist_category"),
+                "facebook_category": item.get("facebook_category"),
                 "condition": item.get("condition", []),
                 "alert_type": item.get("alert_type"),
             }
@@ -95,6 +103,8 @@ def listing_to_dict(listing: Listing) -> dict[str, Any]:
         "price": listing.price,
         "location": listing.location,
         "platform": listing.platform,
+        "category_id": listing.category_id,
+        "category_name": listing.category_name,
         "condition": listing.condition,
         "description": listing.description,
         "images": listing.images,
@@ -138,6 +148,7 @@ def health() -> dict[str, str]:
 @app.get(f"{API_PREFIX}/listings")
 def get_listings(
     platform: str | None = None,
+    category: str | None = None,
     min_score: int = 0,
     search: str | None = None,
     db: Session = Depends(get_db),
@@ -145,6 +156,8 @@ def get_listings(
     query = db.query(Listing).filter(Listing.deal_score >= min_score)
     if platform and platform != "both":
         query = query.filter(Listing.platform == platform)
+    if category:
+        query = query.filter(Listing.category_id == category)
     if search:
         query = query.filter(Listing.title.ilike(f"%{search}%"))
     return [listing_to_dict(item) for item in query.order_by(Listing.scraped_at.desc()).limit(200).all()]
@@ -171,6 +184,10 @@ def get_watchlists(db: Session = Depends(get_db)) -> list[dict[str, Any]]:
             "radius_miles": w.radius_miles,
             "price_min": w.price_min,
             "price_max": w.price_max,
+            "category_id": w.category_id,
+            "category_name": w.category_name,
+            "craigslist_category": w.craigslist_category,
+            "facebook_category": w.facebook_category,
             "condition": w.condition,
             "alert_type": w.alert_type,
             "last_scraped_at": w.last_scraped_at.isoformat() if w.last_scraped_at else None,
@@ -178,6 +195,11 @@ def get_watchlists(db: Session = Depends(get_db)) -> list[dict[str, Any]]:
         }
         for w in db.query(Watchlist).order_by(Watchlist.created_at.desc()).all()
     ]
+
+
+@app.get(f"{API_PREFIX}/categories")
+def get_categories() -> list[dict[str, Any]]:
+    return read_config().get("search_categories", [])
 
 
 @app.post(f"{API_PREFIX}/watchlists")

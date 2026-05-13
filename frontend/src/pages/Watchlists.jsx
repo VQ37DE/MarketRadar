@@ -1,4 +1,5 @@
 import { ArrowLeft, Plus } from 'lucide-react';
+import categories from '../../../seeds/search_categories.json';
 
 export default function Watchlists({ setRoute }) {
   return (
@@ -17,6 +18,21 @@ export default function Watchlists({ setRoute }) {
               <div className="mt-4 flex items-center justify-between text-xs text-tertiary"><span>Enabled</span><span>Last scrape 2m ago</span></div>
             </div>
           ))}
+        </div>
+        <div className="mt-8">
+          <h2 className="text-lg font-bold text-primary">Search Categories</h2>
+          <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {categories.map((category) => (
+              <div key={category.id} className="card p-4">
+                <div className="text-sm font-bold text-primary">{category.name}</div>
+                <div className="mt-2 line-clamp-2 text-xs text-secondary">{category.keywords.join(', ')}</div>
+                <div className="mt-3 flex items-center justify-between text-[11px] uppercase tracking-wide text-tertiary">
+                  <span>FB</span>
+                  <span>CL /{category.craigslist_category}</span>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
     </main>
